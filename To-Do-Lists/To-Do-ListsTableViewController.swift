@@ -62,10 +62,16 @@ class To_Do_ListsTableViewController: UITableViewController {
             self.toDo.append(newItem)
             self.saveItem()
         }
+        
+        let cancel = UIAlertAction(title: "Cancel", style: .default) { (cancel) in
+            self.dismiss(animated: true, completion: nil)
+        }
+        
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Add New Item.."
             textField = alertTextField
         }
+        alert.addAction(cancel)
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
     }
