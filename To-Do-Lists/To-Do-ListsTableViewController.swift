@@ -39,14 +39,51 @@ class To_Do_ListsTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .alert)
         
-        if toDo[indexPath.row].done == true {
-            toDo[indexPath.row].done = false
-        } else {
-            toDo[indexPath.row].done = true
+        // edit item
+        let edit = UIAlertAction(title: "Edit", style: .default) { (edit) in
+            var textField = UITextField()
+            let alert = UIAlertController(title: "Edit", message: nil, preferredStyle: .alert)
+            let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+            let edit = UIAlertAction(title: "Edit", style: .default) { (edit) in
+                self.toDo[indexPath.row].title = textField.text!
+                self.saveItem()
+            }
+            alert.addTextField { (alertTextField) in
+                alertTextField.placeholder = "Edit Item.."
+                textField = alertTextField
+            }
+            alert.addAction(cancel)
+            alert.addAction(edit)
+            self.present(alert, animated: true, completion: nil)
         }
         
+        // delete item
+        let delete = UIAlertAction(title: "Delete", style: .default) { (delete) in
+            let alert = UIAlertController(title: "Delete", message: nil, preferredStyle: .alert)
+            let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+            let delete = UIAlertAction(title: "Delete", style: .default) { (delete) in
+                self.context.delete(self.toDo[indexPath.row])
+                self.toDo.remove(at: indexPath.row)
+                self.saveItem()
+            }
+            alert.addAction(cancel)
+            alert.addAction(delete)
+            self.present(alert, animated: true, completion: nil)
+        }
+        
+        // Cancel button
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+        // Edit button
+        alert.addAction(edit)
+        
+        // Delete button
+        alert.addAction(delete)
+        
+        
+        present(alert, animated: true, completion: nil)
         saveItem()
     }
     
@@ -55,7 +92,7 @@ class To_Do_ListsTableViewController: UITableViewController {
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         var textField = UITextField()
         let alert = UIAlertController(title: "Add New Item", message: "", preferredStyle: .alert)
-        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+        let action = UIAlertAction(title: "Add", style: .default) { (action) in
             let newItem = Item(context: self.context)
             newItem.title = textField.text!
             newItem.done = false
@@ -63,9 +100,7 @@ class To_Do_ListsTableViewController: UITableViewController {
             self.saveItem()
         }
         
-        let cancel = UIAlertAction(title: "Cancel", style: .default) { (cancel) in
-            self.dismiss(animated: true, completion: nil)
-        }
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         
         alert.addTextField { (alertTextField) in
             alertTextField.placeholder = "Add New Item.."
@@ -75,7 +110,7 @@ class To_Do_ListsTableViewController: UITableViewController {
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
     }
-    
+
     //MARK: - Save Item
     func saveItem() {
         do {
@@ -94,5 +129,7 @@ class To_Do_ListsTableViewController: UITableViewController {
         } catch {
             print("Error fetching data \(error)")
         }
+        tableView.reloadData()
     }
+    
 }
